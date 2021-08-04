@@ -1,8 +1,9 @@
-from flask import Flask, send_file, request, redirect, url_for, render_template
+from flask import Flask, send_file, request, redirect, url_for, render_template, Response
 import os
 import logging
 import config
 from api import api
+from tasks.tasks import add
 # from models import db
 
 
@@ -76,6 +77,13 @@ def create_app() -> Flask:
          if request.method == 'POST':
             user = request.form['nm'] # name of the element
             return redirect(url_for('success', name = user))
+
+   @app.route('/add',methods = ['POST','GET'])
+   def add_numbers(): 
+      x = request.args.get("x")
+      y = request.args.get("y")
+      result = add.delay(x,y) # this takes a long time
+      return {"result": result.get()}, 200
 
    return app # return this Flask app
 
